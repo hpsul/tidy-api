@@ -1,0 +1,38 @@
+= Tidy API
+Hossein Pursultani<hossein@freshbits.io>
+v2.0.1 - 2018
+
+:12factor: https://12factor.net/
+:consul: https://consul.io
+:etcd: https://coreos.com/etcd
+:express: https://expressjs.com
+:skydns: https://github.com/skynetservices/skydns
+:vault: https://www.vaultproject.io
+
+
+Practices and tools for developing coherent, concise, ops-friendly RESTful web
+services with _Node.js_.
+
+
+== TL;DR
+
+Build {12factor}[a web service that your DevOps love], because:
+
+  * It is built to be Dockerized and Kubernetized.
+  * It integrates with service discovery and distributed configuration systems, 
+    e.g. {consul}[Consul], {vault}[Vault], {etcd}[etcd], {skydns}[SkyDNS], etc.
+  * Its runtime behavior can be controlled with command line options, signals, 
+    and environment variables.
+  * It has separate access and error logging to different streams.
+  * It has a ready-to-use {express}[Express] application instance with the proper 
+    configuration for a RESTful web service.
+  * Last but not least, it brings structure and order to your code.
+
+
+== Overview
+
+*Tidy API* is a collection of practices and tools that are already being used
+to build web applications. In that sense, it does not reinvent the wheel. It 
+uses the existing libraries and frameworks, integrates them, and builds a 
+layer atop to achieve its goal: a _coherent_, _concise_, _ops-friendly_ web
+service.
