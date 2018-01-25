@@ -16,7 +16,7 @@ services with _Node.js_.
 
 == TL;DR
 
-Build {12factor}[a web service that your DevOps love], because:
+Build {12factor}[a web service that your DevOps love]:
 
   * It is built to be Dockerized and Kubernetized.
   * It integrates with service discovery and distributed configuration systems, 
@@ -33,6 +33,6 @@ Build {12factor}[a web service that your DevOps love], because:
 
 *Tidy API* is a collection of practices and tools that are already being used
 to build web applications. In that sense, it does not reinvent the wheel. It 
-uses the existing libraries and frameworks, integrates them, and builds a 
+uses the existing libraries and frameworks, orchestrates them, and builds a 
 layer atop to achieve its goal: a _coherent_, _concise_, _ops-friendly_ web
 service.
