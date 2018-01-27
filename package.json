@@ -2,7 +2,7 @@
   "name": "tidy-api",
   "version": "2.0.1",
   "description": "Practices and tools for developing coherent, concise, ops-friendly RESTful web services with Node.js",
-  "homepage": "https://github.com/hpsul/tidy-api",
+  "homepage": "https://github.com/pursultani/tidy-api",
   "license": "MIT",
   "keywords": [
     "restful",
@@ -16,18 +16,18 @@
   "author": {
     "name": "Hossein Pursultani",
     "email": "hossein@freshbits.io",
-    "url": "https://github.com/hpsul"
+    "url": "https://github.com/pursultani"
   },
   "repository": {
     "type": "git",
-    "url": "github:hpsul/tidy-api.git"
+    "url": "github:pursultani/tidy-api.git"
   },
   "bugs": {
-    "url": "https://github.com/hpsul/tidy-api/issues"
+    "url": "https://github.com/pursultani/tidy-api/issues"
   },
   "scripts": {
     "lint": "eslint .",
-    "build": "babel -d lib/ src/",
+    "compile": "babel -d lib/ src/",
     "test": "mocha --require babel-core/register"
   },
   "files": [
