@@ -2,6 +2,18 @@
  * COPYRIGHT
  */
 
+function pickMessage(error) {
+  return error instanceof Error ? error.message : error.toString();
+}
+
+function pickCause(error, cause) {
+  return cause || (error instanceof Error ? error : undefined);
+}
+
+function pickProbableCause(details) {
+  return details[0] instanceof Error ? details.shift() : undefined;
+}
+
 class CustomError extends Error {
 
   constructor(message, cause = undefined) {
@@ -17,24 +29,12 @@ class CustomError extends Error {
     return this.cause;
   }
 
-  isCaused(type = Error) {
-    return this.cause && this.cause instanceof type;
-  }
-
-  static findMessage(error) {
-    return error instanceof Error ? error.message : error.toString();
-  }
-
-  static findCause(error, cause) {
-    return cause || (error instanceof Error ? error : undefined);
-  }
-
 }
 
 class SystemError extends CustomError {
 
   constructor(error = '', exitCode = 255, cause = undefined) {
-    super(CustomError.findMessage(error), CustomError.findCause(error, cause));
+    super(pickMessage(error), pickCause(error, cause));
     this.exitCode = exitCode;
   }
 
@@ -47,8 +47,7 @@ class SystemError extends CustomError {
 class ApplicationError extends CustomError {
 
   constructor(error = '', statusCode = 500, ...details) {
-    const cause = ApplicationError.findProbableCause(details);
-    super(CustomError.findMessage(error), CustomError.findCause(error, cause));
+    super(pickMessage(error), pickCause(error, pickProbableCause(details)));
     this.statusCode = statusCode;
     this.details = details || [];
   }
@@ -59,10 +58,6 @@ class ApplicationError extends CustomError {
 
   get details() {
     return this.details;
-  }
-
-  static findProbableCause(details) {
-    return details[0] instanceof Error ? details.shift() : undefined;
   }
 
 }
