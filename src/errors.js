@@ -25,10 +25,6 @@ class CustomError extends Error {
     }
   }
 
-  get cause() {
-    return this.cause;
-  }
-
 }
 
 class SystemError extends CustomError {
@@ -36,10 +32,6 @@ class SystemError extends CustomError {
   constructor(error = '', exitCode = 255, cause = undefined) {
     super(pickMessage(error), pickCause(error, cause));
     this.exitCode = exitCode;
-  }
-
-  get exitCode() {
-    return this.exitCode;
   }
 
 }
@@ -50,14 +42,6 @@ class ApplicationError extends CustomError {
     super(pickMessage(error), pickCause(error, pickProbableCause(details)));
     this.statusCode = statusCode;
     this.details = details || [];
-  }
-
-  get exitCode() {
-    return this.exitCode;
-  }
-
-  get details() {
-    return this.details;
   }
 
 }
