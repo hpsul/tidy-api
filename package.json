@@ -43,7 +43,9 @@
     "npm": "~5"
   },
   "main": "lib/index.js",
-  "dependencies": {},
+  "dependencies": {
+    "find-up": "^2.1.0"
+  },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.2.1",
