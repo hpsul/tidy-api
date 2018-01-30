@@ -1,0 +1,41 @@
+[
+  {
+    "name": "help",
+    "description": "Prints the usage guide.",
+    "alias": "h",
+    "type": "Boolean"
+  }, {
+    "name": "version",
+    "description": "Prints the version information.",
+    "alias": "v",
+    "type": "Boolean"
+  }, {
+    "name": "environment",
+    "description": "The runtime environment. The default is [underline]{development}.",
+    "alias": "e",
+    "type": "String",
+    "typeLabel": "[underline]{ENVIRONMENT}",
+    "defaultValue": "development"
+  }, {
+    "name": "log",
+    "description": "The application log level. The default is [underline]{info}.",
+    "alias": "l",
+    "type": "String",
+    "typeLabel": "[underline]{LEVEL}",
+    "defaultValue": "info"
+  }, {
+    "name": "address",
+    "description": "The service binding address. The default is [underline]{0.0.0.0}.",
+    "alias": "a",
+    "type": "String",
+    "typeLabel": "[underline]{ADDRESS}",
+    "defaultValue": "0.0.0.0"
+  }, {
+    "name": "port",
+    "description": "The service binding port. The default is [underline]{8080}.",
+    "alias": "p",
+    "type": "Number",
+    "typeLabel": "[underline]{PORT}",
+    "defaultValue": 8080
+  }
+]

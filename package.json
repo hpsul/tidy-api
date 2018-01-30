@@ -44,6 +44,8 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "command-line-args": "^5.0.1",
+    "command-line-usage": "^4.1.0",
     "find-up": "^2.1.0"
   },
   "devDependencies": {
