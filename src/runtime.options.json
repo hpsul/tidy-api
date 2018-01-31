@@ -10,6 +10,11 @@
     "alias": "v",
     "type": "Boolean"
   }, {
+    "name": "name",
+    "description": "The service name. The default value is obtained from `package.json`.",
+    "alias": "n",
+    "type": "String"
+  }, {
     "name": "environment",
     "description": "The runtime environment. The default is [underline]{development}.",
     "alias": "e",
@@ -37,5 +42,16 @@
     "type": "Number",
     "typeLabel": "[underline]{PORT}",
     "defaultValue": 8080
+  }, {
+    "name": "discovery",
+    "description": "The service discovery type. The default is [underline]{auto}.",
+    "type": "String",
+    "typeLabel": "[underline]{TYPE}",
+    "defaultValue": "auto"
+  }, {
+    "name": "discovery-url",
+    "description": "The service discovery URL.",
+    "type": "String",
+    "typeLabel": "[underline]{URL}"
   }
 ]

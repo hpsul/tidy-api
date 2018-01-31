@@ -6,7 +6,7 @@ import findUp from 'find-up';
 import generateCommandLineUsage from 'command-line-usage';
 import parseCommandLineArgs from 'command-line-args';
 
-const ATTRIBUTE_NAMES = [
+const METADATA_ATTRIBUTE_NAMES = [
   'name', 'version', 'description', 'author', 'service'];
 
 function readDefaultMetadata() {
@@ -14,12 +14,12 @@ function readDefaultMetadata() {
   /* eslint-disable global-require */
   return new Map(Object
     .entries(require(findUp.sync('package.json')))
-    .filter(entry => ATTRIBUTE_NAMES.includes(entry[0])));
+    .filter(entry => METADATA_ATTRIBUTE_NAMES.includes(entry[0])));
   /* eslint-enable import/no-dynamic-require */
   /* eslint-enable global-require */
 }
 
-function readDefaultRuntimeOptions() {
+function readDefaultOptionDefinitions() {
   /* eslint-disable global-require */
   const result = require('./runtime.options.json');
   /* eslint-enable global-require */
@@ -32,10 +32,10 @@ function readDefaultRuntimeOptions() {
 }
 
 const DEFAULT_METADATA = readDefaultMetadata();
-const DEFAULT_OPTIONS = readDefaultRuntimeOptions();
+const DEFAULT_DEFINITIONS = readDefaultOptionDefinitions();
 const DEFAULT_ENVIRONMENT = 'development';
 
-function setAttribute(source, target, name) {
+function setMetadataAttribute(source, target, name) {
   let value;
   if (source) {
     value = source instanceof Map ? source.get(name) : source[name];
@@ -52,8 +52,8 @@ class PackageMetadata {
 
   constructor(source = undefined) {
     this.attributes = new Map();
-    ATTRIBUTE_NAMES.forEach((name) => {
-      setAttribute(source, this.attributes, name);
+    METADATA_ATTRIBUTE_NAMES.forEach((name) => {
+      setMetadataAttribute(source, this.attributes, name);
     });
   }
 
@@ -79,14 +79,25 @@ class PackageMetadata {
 
 }
 
-class Runtime {
+class RuntimeContext {
 
-  constructor({ packageMetadata, optionsDefinition, commandArgs }) {
+  constructor(packageMetadata, optionDefinitions, commandArgs) {
     this.metadata = packageMetadata || new PackageMetadata();
-    this.options = parseCommandLineArgs(optionsDefinition || DEFAULT_OPTIONS, {
-      argv: commandArgs,
-    });
-    this.environment = process.env.NODE_ENV || this.options.environment || DEFAULT_ENVIRONMENT;
+    try {
+      this.options = parseCommandLineArgs(optionDefinitions || DEFAULT_DEFINITIONS, {
+        argv: commandArgs,
+        camelCase: true,
+        partial: true,
+      });
+      this.hasValidOptions = true;
+    } catch (e) {
+      this.options = {};
+      this.hasValidOptions = false;
+    }
+    this.name =
+      this.options.name || process.env.SERVICE_NAME || this.metadata.service;
+    this.environment =
+      this.options.environment || process.env.NODE_ENV || DEFAULT_ENVIRONMENT;
   }
 
   get title() {
@@ -111,25 +122,17 @@ class Runtime {
     return this.cachedUsage;
   }
 
-  printVersion() {
-    if (this.title) {
-      /* eslint-disable no-console */
-      console.error(this.title);
-      /* eslint-enable no-console */
-    }
+  get printVersion() {
+    return this.options.version || false;
   }
 
-  printUsage() {
-    if (this.usage) {
-      /* eslint-disable no-console */
-      console.error(this.usage);
-      /* eslint-enable no-console */
-    }
+  get printUsage() {
+    return this.options.help || !this.hasValidOptions || false;
   }
 
 }
 
 export {
   PackageMetadata,
-  Runtime,
+  RuntimeContext,
 };
