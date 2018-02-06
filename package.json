@@ -44,9 +44,12 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "bunyan": "^1.8.12",
+    "colors": "^1.1.2",
     "command-line-args": "^5.0.1",
     "command-line-usage": "^4.1.0",
-    "find-up": "^2.1.0"
+    "find-up": "^2.1.0",
+    "sprintf": "^0.1.5"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -58,6 +61,7 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.5.1",
+    "memory-streams": "^0.1.3",
     "mocha": "^5.0.0"
   }
 }
