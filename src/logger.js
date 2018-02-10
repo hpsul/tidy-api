@@ -20,11 +20,9 @@ const DEFAULT_COLORS = {
 };
 
 function colorize(message, color) {
-  if (color) {
-    const operator = safeColors[color];
-    if (operator) {
-      return operator(message);
-    }
+  const operator = safeColors[color];
+  if (operator) {
+    return operator(message);
   }
   return message;
 }
@@ -35,10 +33,6 @@ function compile(pattern) {
     const parts = element.match(/%{(\d:)?(\w+)(:\w+)?}/);
     const padding = parts[1] ? Number.parseInt(parts[1], 10) : '';
     const index = FORMAT_ELEMENTS.indexOf(parts[2]);
-    /*
-     * field formatting is not supported.
-     */
-    // const format = parts[3];
     if (index > -1) {
       result = result.replace(element, `%${index + 1}$${padding}s`);
     }
@@ -57,36 +51,27 @@ function pathTail(filePath, tail) {
   return elements.join('/');
 }
 
-function sourceString(source) {
-  if (!source) {
-    return '';
-  }
-  let result = pathTail(source.file, 2)
-    + (source.line ? `:${source.line}` : '');
-  if (source.func) {
-    result = `${source.func}(${result})`;
-  }
-  return result;
-}
+const DEFAULT_STRINGIFIER = {
+  src: (src) => {
+    if (!src) {
+      return '';
+    }
+    let result = pathTail(src.file, 2)
+      + (src.line ? `:${src.line}` : '');
+    if (src.func) {
+      result = `${src.func}(${result})`;
+    }
+    return result;
+  },
+  err: (err) => {
+    if (!err) {
+      return '';
+    }
+    return err.stack ? err.stack : err.toString();
+  },
+};
 
-function errorString(error) {
-  if (!error) {
-    return '';
-  }
-  return error.stack ? error.stack : error.toString();
-}
-
-function asArguments(entry) {
-  return [
-    entry.time instanceof Date ? entry.time.toISOString() : entry.time.toString(), // date
-    entry.name, // name
-    entry.pid, // process
-    entry.hostname, // host
-    sourceString(entry.src), // source
-    bunyan.nameFromLevel[entry.level].toUpperCase(), // level
-    entry.msg, // message
-  ];
-}
+safeColors.enabled = true;
 
 class LogStream extends Writable {
 
@@ -94,24 +79,33 @@ class LogStream extends Writable {
     format = DEFAULT_FORMAT,
     debug = true,
     out = process.stderr,
-    forceColor = true,
+    useColor = true,
     colors = DEFAULT_COLORS,
+    stringifiers = DEFAULT_STRINGIFIER,
   }) {
     super({ objectMode: true });
     this.format = compile(format);
     this.debug = debug;
     this.out = out;
-    this.forceColor = forceColor;
+    this.useColor = useColor;
     this.colors = colors;
-    safeColors.enabled = this.forceColor;
+    this.stringifiers = stringifiers;
   }
 
   stringify(entry) {
-    let result = vsprintf(this.format, asArguments(entry));
+    let result = vsprintf(this.format, [
+      entry.time instanceof Date ? entry.time.toISOString() : entry.time.toString(), // date
+      entry.name, // name
+      entry.pid, // process
+      entry.hostname, // host
+      this.stringifiers.src ? this.stringifiers.src(entry.src) : '', // source
+      bunyan.nameFromLevel[entry.level].toUpperCase(), // level
+      entry.msg, // message
+    ]);
     if (entry.err) {
-      result = `${result}\n${errorString(entry.err)}`;
+      result = `${result}\n${this.stringifiers.err ? this.stringifiers.err(entry.err) : entry.err.toString()}`;
     }
-    return colorize(result, this.forceColor ? this.colors[entry.level] : undefined);
+    return this.useColor ? colorize(result, this.colors[entry.level]) : result;
   }
 
   _write(entry, encoding, done) {
