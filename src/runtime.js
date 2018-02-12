@@ -34,6 +34,7 @@ function readDefaultOptionDefinitions() {
 const DEFAULT_METADATA = readDefaultMetadata();
 const DEFAULT_DEFINITIONS = readDefaultOptionDefinitions();
 const DEFAULT_ENVIRONMENT = 'development';
+const PRODUCTION_ENVIRONMENT = 'production';
 
 function setMetadataAttribute(source, target, name) {
   let value;
@@ -128,6 +129,10 @@ class RuntimeContext {
 
   get printUsage() {
     return this.options.help || !this.hasValidOptions || false;
+  }
+
+  get debugMode() {
+    return this.environment !== PRODUCTION_ENVIRONMENT;
   }
 
 }

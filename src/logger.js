@@ -7,6 +7,7 @@ import safeColors from 'colors/safe';
 import path from 'path';
 import { vsprintf } from 'sprintf';
 import { Writable } from 'stream';
+import { RuntimeContext } from './runtime';
 
 const FORMAT_ELEMENTS = ['date', 'name', 'process', 'host', 'source', 'level', 'message'];
 const DEFAULT_FORMAT = '%{date} %{name} [%{process}@%{host}] - %{8:level} %{source} %{message}';
@@ -18,6 +19,7 @@ const DEFAULT_COLORS = {
   50: 'red', // error
   60: 'magenta', // fatal
 };
+const DEFAULT_LOG_LEVEL = 'info';
 
 function colorize(message, color) {
   const operator = safeColors[color];
@@ -124,9 +126,108 @@ class LogStream extends Writable {
 
 }
 
-const Log = {};
+let defaultFactory;
+let defaultLogger;
+
+class LoggerFactory {
+
+  constructor(runtimeContext) {
+    this.context = runtimeContext || new RuntimeContext();
+  }
+
+  newLogger(name, level, options = {}) {
+    const stream = this.context.debugMode ? {
+      stream: new LogStream(Object.assign({
+        debug: this.context.debugMode,
+        useColor: this.context.debugMode,
+      }, options)),
+      type: 'raw',
+    } : {
+      stream: process.stderr,
+      type: 'stream',
+    };
+    return bunyan.createLogger({ name, level, streams: [stream] });
+  }
+
+  rootLogger(name, level, options = {}) {
+    if (!this.root) {
+      const nameToUse = name || this.context.name;
+      const levelToUse = level || this.context.options.log || DEFAULT_LOG_LEVEL;
+      this.root = this.newLogger(nameToUse, bunyan.levelFromName[levelToUse], options);
+    }
+    return this.root;
+  }
+
+}
+
+defaultFactory = new LoggerFactory();
+defaultLogger = defaultFactory.rootLogger();
+
+class Log {
+
+  static get logger() {
+    return defaultLogger;
+  }
+
+  static set logger(logger) {
+    defaultLogger = logger;
+    if (!defaultLogger) {
+      defaultLogger = defaultFactory.rootLogger();
+    }
+  }
+
+  static get factory() {
+    return defaultFactory;
+  }
+
+  static set factory(factory) {
+    defaultFactory = factory;
+    if (!defaultFactory) {
+      defaultFactory = new LoggerFactory();
+    }
+    defaultLogger = defaultFactory.rootLogger();
+  }
+
+  static trace() {
+    /* eslint-disable prefer-rest-params */
+    defaultLogger.trace(arguments);
+    /* eslint-enable prefer-rest-params */
+  }
+
+  static debug() {
+    /* eslint-disable prefer-rest-params */
+    defaultLogger.debug(arguments);
+    /* eslint-enable prefer-rest-params */
+  }
+
+  static info() {
+    /* eslint-disable prefer-rest-params */
+    defaultLogger.info(arguments);
+    /* eslint-enable prefer-rest-params */
+  }
+
+  static warn() {
+    /* eslint-disable prefer-rest-params */
+    defaultLogger.warn(arguments);
+    /* eslint-enable prefer-rest-params */
+  }
+
+  static error() {
+    /* eslint-disable prefer-rest-params */
+    defaultLogger.warn(arguments);
+    /* eslint-enable prefer-rest-params */
+  }
+
+  static fatal() {
+    /* eslint-disable prefer-rest-params */
+    defaultLogger.warn(arguments);
+    /* eslint-enable prefer-rest-params */
+  }
+
+}
 
 export {
   Log,
   LogStream,
+  LoggerFactory,
 };
