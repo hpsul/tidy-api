@@ -275,7 +275,7 @@ describe('errors', () => {
       });
 
       it('should have the list of specified details', () => {
-        expect(subject.details).to.be.eql(['Ouch!']);
+        expect(subject.details).to.be.deep.equal(['Ouch!']);
       });
 
     });
@@ -306,7 +306,7 @@ describe('errors', () => {
       });
 
       it('should have the list of specified details, including errors', () => {
-        expect(subject.details).to.be.eql(['Ouch!', cause]);
+        expect(subject.details).to.be.deep.equal(['Ouch!', cause]);
       });
 
     });
