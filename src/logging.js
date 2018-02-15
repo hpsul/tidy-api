@@ -5,12 +5,12 @@
 import bunyan from 'bunyan';
 import safeColors from 'colors/safe';
 import path from 'path';
-import { vsprintf } from 'sprintf';
+import { vsprintf } from 'sprintf-js';
 import { Writable } from 'stream';
 import { RuntimeContext } from './runtime';
 
 const FORMAT_ELEMENTS = ['date', 'name', 'process', 'host', 'source', 'level', 'message'];
-const DEFAULT_FORMAT = '%{date} %{name} [%{process}@%{host}] - %{8:level} %{source} %{message}';
+const DEFAULT_FORMAT = '%{date} %{name} [%{process}@%{host}] %{source} -%{6:level} %{message}';
 const DEFAULT_COLORS = {
   10: 'grey', // trace
   20: 'cyan', // debug
@@ -31,7 +31,7 @@ function colorize(message, color) {
 
 function compile(pattern) {
   let result = pattern;
-  pattern.match(/(%{(-[\d])?[\w:]+})/g).forEach((element) => {
+  (pattern.match(/(%{(-[\d])?[\w:]+})/g) || []).forEach((element) => {
     const parts = element.match(/%{(\d:)?(\w+)(:\w+)?}/);
     const padding = parts[1] ? Number.parseInt(parts[1], 10) : '';
     const index = FORMAT_ELEMENTS.indexOf(parts[2]);
@@ -96,13 +96,13 @@ class LogStream extends Writable {
 
   stringify(entry) {
     let result = vsprintf(this.format, [
-      entry.time instanceof Date ? entry.time.toISOString() : entry.time.toString(), // date
-      entry.name, // name
-      entry.pid, // process
-      entry.hostname, // host
-      this.stringifiers.src ? this.stringifiers.src(entry.src) : '', // source
-      bunyan.nameFromLevel[entry.level].toUpperCase(), // level
-      entry.msg, // message
+      entry.time instanceof Date ? entry.time.toISOString() : entry.time.toString(),
+      entry.name,
+      entry.pid,
+      entry.hostname,
+      this.stringifiers.src ? this.stringifiers.src(entry.src) : '',
+      bunyan.nameFromLevel[entry.level].toUpperCase(),
+      entry.msg,
     ]);
     if (entry.err) {
       result = `${result}\n${this.stringifiers.err ? this.stringifiers.err(entry.err) : entry.err.toString()}`;
@@ -131,96 +131,94 @@ let defaultLogger;
 
 class LoggerFactory {
 
-  constructor(runtimeContext) {
-    this.context = runtimeContext || new RuntimeContext();
+  constructor(context = RuntimeContext.default()) {
+    this.context = context;
   }
 
   newLogger(name, level, options = {}) {
-    const stream = this.context.debugMode ? {
+    const nameToUse = name || this.context.name;
+    const levelToUse = level || this.context.options.log || DEFAULT_LOG_LEVEL;
+    const streamToUse = this.context.debugMode ? {
       stream: new LogStream(Object.assign({
         debug: this.context.debugMode,
         useColor: this.context.debugMode,
       }, options)),
       type: 'raw',
     } : {
-      stream: process.stderr,
+      stream: options.out || process.stderr,
       type: 'stream',
     };
-    return bunyan.createLogger({ name, level, streams: [stream] });
+    return bunyan.createLogger({
+      name: nameToUse,
+      level: levelToUse,
+      streams: [streamToUse],
+    });
   }
 
-  rootLogger(name, level, options = {}) {
-    if (!this.root) {
-      const nameToUse = name || this.context.name;
-      const levelToUse = level || this.context.options.log || DEFAULT_LOG_LEVEL;
-      this.root = this.newLogger(nameToUse, bunyan.levelFromName[levelToUse], options);
+  static default() {
+    if (!defaultFactory) {
+      defaultFactory = new LoggerFactory();
     }
-    return this.root;
+    return defaultFactory;
   }
 
 }
 
-defaultFactory = new LoggerFactory();
-defaultLogger = defaultFactory.rootLogger();
-
 class Log {
 
   static get logger() {
+    if (!defaultLogger) {
+      defaultLogger = LoggerFactory.default().newLogger();
+    }
     return defaultLogger;
   }
 
   static set logger(logger) {
     defaultLogger = logger;
-    if (!defaultLogger) {
-      defaultLogger = defaultFactory.rootLogger();
-    }
   }
 
   static get factory() {
-    return defaultFactory;
+    return LoggerFactory.default();
   }
 
   static set factory(factory) {
     defaultFactory = factory;
-    if (!defaultFactory) {
-      defaultFactory = new LoggerFactory();
-    }
-    defaultLogger = defaultFactory.rootLogger();
+    defaultLogger = undefined;
   }
 
   static trace() {
     /* eslint-disable prefer-rest-params */
-    defaultLogger.trace(arguments);
+    Log.logger.trace(...arguments);
     /* eslint-enable prefer-rest-params */
   }
 
   static debug() {
     /* eslint-disable prefer-rest-params */
-    defaultLogger.debug(arguments);
+    Log.logger.debug(...arguments);
     /* eslint-enable prefer-rest-params */
   }
 
   static info() {
     /* eslint-disable prefer-rest-params */
-    defaultLogger.info(arguments);
+    Log.logger.info(...arguments);
     /* eslint-enable prefer-rest-params */
   }
 
   static warn() {
     /* eslint-disable prefer-rest-params */
-    defaultLogger.warn(arguments);
+    Log.logger.warn(...arguments);
     /* eslint-enable prefer-rest-params */
   }
 
   static error() {
     /* eslint-disable prefer-rest-params */
-    defaultLogger.warn(arguments);
+    Log.logger.error(...arguments);
     /* eslint-enable prefer-rest-params */
   }
 
   static fatal() {
     /* eslint-disable prefer-rest-params */
-    defaultLogger.warn(arguments);
+    Log.logger.fatal(...arguments);
     /* eslint-enable prefer-rest-params */
   }
 
@@ -231,3 +229,5 @@ export {
   LogStream,
   LoggerFactory,
 };
+
+export default Log;
