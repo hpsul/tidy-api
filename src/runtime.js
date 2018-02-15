@@ -2,9 +2,9 @@
  * COPYRIGHT
  */
 
-import findUp from 'find-up';
+import { sync as findUp } from 'find-up';
 import generateCommandLineUsage from 'command-line-usage';
-import parseCommandLineArgs from 'command-line-args';
+import parseCommandLine from 'command-line-args';
 
 const METADATA_ATTRIBUTE_NAMES = [
   'name', 'version', 'description', 'author', 'service'];
@@ -13,7 +13,7 @@ function readDefaultMetadata() {
   /* eslint-disable import/no-dynamic-require */
   /* eslint-disable global-require */
   return new Map(Object
-    .entries(require(findUp.sync('package.json')))
+    .entries(require(findUp('package.json')))
     .filter(entry => METADATA_ATTRIBUTE_NAMES.includes(entry[0])));
   /* eslint-enable import/no-dynamic-require */
   /* eslint-enable global-require */
@@ -33,8 +33,10 @@ function readDefaultOptionDefinitions() {
 
 const DEFAULT_METADATA = readDefaultMetadata();
 const DEFAULT_DEFINITIONS = readDefaultOptionDefinitions();
-const DEFAULT_ENVIRONMENT = 'development';
+
 const PRODUCTION_ENVIRONMENT = 'production';
+const DEVELOPMENT_ENVIRONMENT = 'development';
+const DEFAULT_ENVIRONMENT = DEVELOPMENT_ENVIRONMENT;
 
 function setMetadataAttribute(source, target, name) {
   let value;
@@ -48,6 +50,9 @@ function setMetadataAttribute(source, target, name) {
     target.set(name, value);
   }
 }
+
+let defaultMetadata;
+let defaultContext;
 
 class PackageMetadata {
 
@@ -78,15 +83,26 @@ class PackageMetadata {
     return this.attributes.get('service') || this.attributes.get('name');
   }
 
+  static default() {
+    if (!defaultMetadata) {
+      defaultMetadata = new PackageMetadata();
+    }
+    return defaultMetadata;
+  }
+
 }
 
 class RuntimeContext {
 
-  constructor(packageMetadata, optionDefinitions, commandArgs) {
-    this.metadata = packageMetadata || new PackageMetadata();
+  constructor(
+    metadata = PackageMetadata.default(),
+    definitions = DEFAULT_DEFINITIONS,
+    args = process.argv,
+  ) {
+    this.metadata = metadata;
     try {
-      this.options = parseCommandLineArgs(optionDefinitions || DEFAULT_DEFINITIONS, {
-        argv: commandArgs,
+      this.options = parseCommandLine(definitions, {
+        argv: args,
         camelCase: true,
         partial: true,
       });
@@ -95,10 +111,8 @@ class RuntimeContext {
       this.options = {};
       this.hasValidOptions = false;
     }
-    this.name =
-      this.options.name || process.env.SERVICE_NAME || this.metadata.service;
-    this.environment =
-      this.options.environment || process.env.NODE_ENV || DEFAULT_ENVIRONMENT;
+    this.name = this.options.name || process.env.SERVICE_NAME || this.metadata.service;
+    this.environment = this.options.environment || process.env.NODE_ENV || DEFAULT_ENVIRONMENT;
   }
 
   get title() {
@@ -133,6 +147,13 @@ class RuntimeContext {
 
   get debugMode() {
     return this.environment !== PRODUCTION_ENVIRONMENT;
+  }
+
+  static default() {
+    if (!defaultContext) {
+      defaultContext = new RuntimeContext();
+    }
+    return defaultContext;
   }
 
 }
