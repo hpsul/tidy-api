@@ -1,0 +1,6 @@
+{
+  "notImplemented": "Method is not implemented. This is an abstract method.",
+  "Discovery": {
+    "notFound": "Service not found: %s"
+  }
+}
