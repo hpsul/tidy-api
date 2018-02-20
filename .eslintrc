@@ -1,11 +1,16 @@
 {
   "extends": "airbnb",
   "env": {
+    "browser": true,
     "mocha": true
   },
+  "plugins": [
+    "react"
+  ],
   "rules": {
-    "padded-blocks": "off",
+    "class-methods-use-this": "off",
     "no-new": "off",
-    "no-param-reassign": ["error", { "props": false }]
+    "no-param-reassign": ["error", { "props": false }],
+    "padded-blocks": "off"
   }
 }

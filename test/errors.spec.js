@@ -20,9 +20,7 @@ describe('errors', () => {
       });
 
       it('should have an empty message', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.message).to.be.empty;
-        /* eslint-enable no-unused-expressions */
       });
 
       it('should have a non-zero exit code', () => {
@@ -30,9 +28,7 @@ describe('errors', () => {
       });
 
       it('should not have another error as its cause', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.cause).to.be.undefined;
-        /* eslint-enable no-unused-expressions */
       });
 
     });
@@ -56,9 +52,7 @@ describe('errors', () => {
       });
 
       it('should not have another error as its cause', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.cause).to.be.undefined;
-        /* eslint-enable no-unused-expressions */
       });
 
     });
@@ -130,9 +124,7 @@ describe('errors', () => {
       });
 
       it('should have an empty message', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.message).to.be.empty;
-        /* eslint-enable no-unused-expressions */
       });
 
       it('should have the default error status (500)', () => {
@@ -140,15 +132,11 @@ describe('errors', () => {
       });
 
       it('should not have another error as its cause', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.cause).to.be.undefined;
-        /* eslint-enable no-unused-expressions */
       });
 
       it('should have an empty list of details', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.details).to.be.empty;
-        /* eslint-enable no-unused-expressions */
       });
 
     });
@@ -177,9 +165,7 @@ describe('errors', () => {
       });
 
       it('should have an empty list of details', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.details).to.be.empty;
-        /* eslint-enable no-unused-expressions */
       });
 
     });
@@ -203,15 +189,11 @@ describe('errors', () => {
       });
 
       it('should not have another error as its cause', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.cause).to.be.undefined;
-        /* eslint-enable no-unused-expressions */
       });
 
       it('should have an empty list of details', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.details).to.be.empty;
-        /* eslint-enable no-unused-expressions */
       });
 
     });
@@ -242,9 +224,7 @@ describe('errors', () => {
       });
 
       it('should have an empty list of details', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.details).to.be.empty;
-        /* eslint-enable no-unused-expressions */
       });
 
     });
@@ -300,9 +280,7 @@ describe('errors', () => {
       });
 
       it('should not have another error as its cause', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.cause).to.be.undefined;
-        /* eslint-enable no-unused-expressions */
       });
 
       it('should have the list of specified details, including errors', () => {

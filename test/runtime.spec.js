@@ -91,11 +91,9 @@ describe('runtime', () => {
       });
 
       it('should have valid options with values from the default definition', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.hasValidOptions).to.be.true;
         expect(subject.printVersion).to.be.false;
         expect(subject.printUsage).to.be.false;
-        /* eslint-enable no-unused-expressions */
         expect(subject.options).to.be.deep.equal({
           environment: 'development',
           log: 'info',
@@ -112,9 +110,7 @@ describe('runtime', () => {
 
       it('should make title and usage from the default metadata', () => {
         expect(subject.title).to.be.equal(`${PACKAGE_JSON.name} - v${PACKAGE_JSON.version}`);
-        /* eslint-disable no-unused-expressions */
         expect(subject.usage).to.be.not.empty;
-        /* eslint-enable no-unused-expressions */
       });
 
     });
@@ -155,11 +151,9 @@ describe('runtime', () => {
       const subject = new RuntimeContext(undefined, undefined, shortArgs);
 
       it('should have valid options with values from the specified command line', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.hasValidOptions).to.be.true;
         expect(subject.printVersion).to.be.true;
         expect(subject.printUsage).to.be.true;
-        /* eslint-enable no-unused-expressions */
         expect(subject.options).to.be.deep.equal({
           help: true,
           version: true,
@@ -190,11 +184,9 @@ describe('runtime', () => {
       const subject = new RuntimeContext(undefined, undefined, longArgs);
 
       it('should have valid options with values from the specified command line', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.hasValidOptions).to.be.true;
         expect(subject.printVersion).to.be.true;
         expect(subject.printUsage).to.be.true;
-        /* eslint-enable no-unused-expressions */
         expect(subject.options).to.be.deep.equal({
           help: true,
           version: true,
@@ -221,9 +213,7 @@ describe('runtime', () => {
       const subject = new RuntimeContext(undefined, undefined, invalidArgs);
 
       it('should indicate that the options are not valid', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.hasValidOptions).to.be.false;
-        /* eslint-enable no-unused-expressions */
       });
 
       it('should use the default values for `name` and `environment`', () => {
@@ -239,9 +229,7 @@ describe('runtime', () => {
       const subject = new RuntimeContext(undefined, invalidDefinitions);
 
       it('should indicate that the options are not valid', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.hasValidOptions).to.be.false;
-        /* eslint-enable no-unused-expressions */
       });
 
       it('should use the default values for `name` and `environment`', () => {
@@ -261,11 +249,9 @@ describe('runtime', () => {
       const subject = new RuntimeContext(undefined, customDefinitions, customArgs);
 
       it('should hav valid options', () => {
-        /* eslint-disable no-unused-expressions */
         expect(subject.hasValidOptions).to.be.true;
         expect(subject.printVersion).to.be.false;
         expect(subject.printUsage).to.be.false;
-        /* eslint-enable no-unused-expressions */
       });
 
       it('should have the specified options', () => {
@@ -281,9 +267,7 @@ describe('runtime', () => {
 
       it('should make title and usage from the available options', () => {
         expect(subject.title).to.be.equal(`${PACKAGE_JSON.name} - v${PACKAGE_JSON.version}`);
-        /* eslint-disable no-unused-expressions */
         expect(subject.usage).to.be.not.empty;
-        /* eslint-enable no-unused-expressions */
       });
 
     });

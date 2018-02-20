@@ -265,16 +265,12 @@ describe('logger', () => {
 
     it('should have `logger` property', () => {
       expect(Log).to.have.property('logger');
-      /* eslint-disable no-unused-expressions */
       expect(Log.logger).to.be.not.null;
-      /* eslint-enable no-unused-expressions */
     });
 
     it('should have `factory` property', () => {
       expect(Log).to.have.property('factory');
-      /* eslint-disable no-unused-expressions */
       expect(Log.factory).to.be.not.null;
-      /* eslint-enable no-unused-expressions */
     });
 
     it('should replace the default factory with the custom one', () => {
@@ -293,9 +289,7 @@ describe('logger', () => {
       const oldFactory = Log.factory;
       Log.factory = newFactory;
       try {
-        /* eslint-disable no-unused-expressions */
         expect(memory.toString()).to.be.empty;
-        /* eslint-enable no-unused-expressions */
         Log.trace('Hello, Trace!');
         expect(memory.toString().trim().split('\n')).to.have.lengthOf(1);
         expect(memory.toString()).to.match(/TRACE Hello, Trace!/);
