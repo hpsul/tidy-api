@@ -99,7 +99,6 @@ describe('runtime', () => {
           log: 'info',
           address: '0.0.0.0',
           port: 8080,
-          discovery: 'auto',
         });
       });
 
@@ -146,7 +145,7 @@ describe('runtime', () => {
 
       const shortArgs = [
         '-h', '-v', '-n', 'test', '-e', 'test', '-l', 'debug', '-a', '127.0.0.1',
-        '-p', '8000', '--discovery', 'consul', '--discovery-url', 'http://consul:8500',
+        '-p', '8000', '--discovery-url', 'http://consul:8500',
       ];
       const subject = new RuntimeContext(undefined, undefined, shortArgs);
 
@@ -162,7 +161,6 @@ describe('runtime', () => {
           log: 'debug',
           address: '127.0.0.1',
           port: 8000,
-          discovery: 'consul',
           discoveryUrl: 'http://consul:8500',
         });
       });
@@ -179,7 +177,7 @@ describe('runtime', () => {
       const longArgs = [
         '--help', '--version', '--name', 'test', '--environment', 'test',
         '--log', 'debug', '--address', '127.0.0.1', '--port', '8000',
-        '--discovery', 'consul', '--discovery-url', 'http://consul:8500',
+        '--discovery-url', 'http://consul:8500',
       ];
       const subject = new RuntimeContext(undefined, undefined, longArgs);
 
@@ -195,7 +193,6 @@ describe('runtime', () => {
           log: 'debug',
           address: '127.0.0.1',
           port: 8000,
-          discovery: 'consul',
           discoveryUrl: 'http://consul:8500',
         });
       });
