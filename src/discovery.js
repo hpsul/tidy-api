@@ -13,7 +13,42 @@ import ErrorMessages from './errors.messages.json';
 class Discovery {
 
   ready() {
-    throw new SystemError(ErrorMessages.notImplemented);
+    return Promise.resolve(true);
+  }
+
+  wait(timeout = 2000, attempt = 10) {
+    let delay = 2;
+    let attempted = 1;
+    const self = this;
+    const started = process.hrtime();
+
+    function doWait(ready) {
+      return ready.then((status) => {
+        if (status) {
+          return true;
+        }
+        /* eslint-disable no-plusplus */
+        attempted++;
+        /* eslint-enable no-plusplus */
+        const diff = process.hrtime(started);
+        /* eslint-disable no-mixed-operators */
+        const elapsed = (diff[1] + diff[0] * 1e+9) / 1e+6;
+        /* eslint-enable no-mixed-operators */
+        if (!status) {
+          delay *= 2;
+        }
+        Log.trace('Increasing the delay for the next readiness test', {
+          elapsed, delay, attempted,
+        });
+        return attempted > attempt || elapsed > timeout ?
+          false : doWait(self.ready().delay(delay));
+      });
+    }
+
+    Log.debug('Waiting for discovery service to be ready', {
+      timeout,
+    });
+    return doWait(this.ready());
   }
 
   lookup() {
@@ -44,10 +79,6 @@ class DNS extends Discovery {
     if (servers.length > 0) {
       this.resolver.setServers(servers.filter(s => s.trim().length > 0));
     }
-  }
-
-  ready() {
-    return Promise.resolve(true);
   }
 
   lookup(name, port) {
@@ -105,9 +136,21 @@ class Consul extends Discovery {
     this.endpoint = endpoint;
   }
 
+  askConsul(resource, method = 'GET', body) {
+    const uri = `${this.endpoint}/v1/${resource}`;
+    Log.trace('Sending request to Consul', {
+      method, uri, body,
+    });
+    return request({
+      method, uri, body, json: true,
+    });
+  }
+
   ready() {
-    return request(`${this.endpoint}/v1/status/leader`)
-      .then(() => true).catch(() => false);
+    Log.debug('Checking readiness of the Consul agent', {
+      endpoint: this.endpoint,
+    });
+    return this.askConsul('status/leader').then(() => true).catch(() => false);
   }
 
   lookup(name, port) {
@@ -116,11 +159,13 @@ class Consul extends Discovery {
         name, port,
       });
     }
-    return request({
-      method: 'GET',
-      uri: `${this.endpoint}/v1/catalog/service/${name}`,
-      json: true,
-    }).then((nodes) => {
+    Log.debug('Looking for the service in Consul catalog', {
+      name,
+    });
+    return this.askConsul(`catalog/service/${name}`).then((nodes) => {
+      Log.debug('List of service nodes is available', {
+        length: nodes.length,
+      });
       if (nodes.length === 0) {
         throw new SystemError(format(ErrorMessages.Discovery.notFound, name));
       }
@@ -131,19 +176,17 @@ class Consul extends Discovery {
   }
 
   register(name, address, port, { id, tags, check } = {}) {
-    return request({
-      method: 'POST',
-      uri: `${this.endpoint}/v1/agent/service/register`,
-      body: {
-        ID: id || name,
-        Name: name,
-        Address: address,
-        Port: port,
-        Tags: tags,
-        EnableTagOverride: false,
-        Check: check,
-      },
-      json: true,
+    Log.debug('Registering service in Consul catalog', {
+      name, address, port,
+    });
+    return this.askConsul('agent/service/register', 'POST', {
+      ID: id || name,
+      Name: name,
+      Address: address,
+      Port: port,
+      Tags: tags,
+      EnableTagOverride: false,
+      Check: check,
     }).then(() => true);
   }
 

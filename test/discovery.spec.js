@@ -63,7 +63,7 @@ describe('discovery', () => {
         .then((data) => {
           subject = new Consul(`http://${data.NetworkSettings.IPAddress}:8500`);
         })
-        .then(() => subject.ready())
+        .then(() => subject.wait())
         .then(() => subject.register('test', '172.16.0.1', 8080))
         .then(() => done());
     });
@@ -73,25 +73,25 @@ describe('discovery', () => {
     });
 
     it('should not be ready when Consul is not available', () =>
-      expect(new Consul('http://localhost:8500').ready()).to.eventually.be.false);
+      expect(new Consul('http://localhost:8500').wait(1000, 3)).to.eventually.be.false);
 
     it('should be ready when Consul is available', () =>
-      expect(subject.ready()).to.eventually.be.true);
+      expect(subject.wait()).to.eventually.be.true);
 
     it('should lookup the registered service', () =>
-      expect(subject.ready().then(() => subject.lookup('test'))).to.eventually.be.deep.equal([
+      expect(subject.wait().then(() => subject.lookup('test'))).to.eventually.be.deep.equal([
         { address: '172.16.0.1', port: 8080 },
       ]));
 
     it('should fail when looks up an unregistered service', () =>
-      expect(subject.ready().then(() => subject.lookup('_none_'))).to.eventually.be
+      expect(subject.wait().then(() => subject.lookup('_none_'))).to.eventually.be
         .rejectedWith(/Service not found/));
 
     it('should register a service with the specified options', () => {
       let nodes;
       let isChecked;
       return expect(subject
-        .ready()
+        .wait()
         .then(() => subject.register('foo', '172.16.1.1', 8888, {
           id: 'foo-uuid',
           tags: ['test', 'example'],
