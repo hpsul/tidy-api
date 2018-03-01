@@ -40,8 +40,11 @@ class Discovery {
         Log.trace('Increasing the delay for the next readiness test', {
           elapsed, delay, attempted,
         });
-        return attempted > attempt || elapsed > timeout ?
-          false : doWait(self.ready().delay(delay));
+        if (attempted > attempt || elapsed > timeout) {
+          throw new SystemError(ErrorMessages.Discovery.notReady);
+        } else {
+          return doWait(self.ready().delay(delay));
+        }
       });
     }
 

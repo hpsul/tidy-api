@@ -73,7 +73,8 @@ describe('discovery', () => {
     });
 
     it('should not be ready when Consul is not available', () =>
-      expect(new Consul('http://localhost:8500').wait(1000, 3)).to.eventually.be.false);
+      expect(new Consul('http://localhost:8500').wait(1000, 3)).to.eventually.be
+        .rejectedWith(/Discovery service is not ready/));
 
     it('should be ready when Consul is available', () =>
       expect(subject.wait()).to.eventually.be.true);

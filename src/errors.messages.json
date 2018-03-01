@@ -1,6 +1,7 @@
 {
   "notImplemented": "Method is not implemented. This is an abstract method.",
   "Discovery": {
-    "notFound": "Service not found: %s"
+    "notFound": "Service not found: %s",
+    "notReady": "Discovery service is not ready after the specified waiting period"
   }
 }
