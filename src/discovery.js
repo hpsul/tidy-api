@@ -8,6 +8,7 @@ import { Resolver } from 'dns';
 import { format } from 'util';
 import { SystemError } from './errors';
 import { Log } from './logging';
+import { RuntimeContext } from './runtime';
 import ErrorMessages from './errors.messages.json';
 
 class Discovery {
@@ -63,12 +64,13 @@ class Discovery {
   }
 
   /* eslint-disable no-use-before-define */
-  static find(type, url = '') {
-    switch (type) {
-      case Consul:
-        return new Consul(url);
+  static find(context = RuntimeContext.default()) {
+    const { discoveryType, discoveryUrl } = context.options;
+    switch (discoveryType) {
+      case 'consul':
+        return new Consul(discoveryUrl);
       default:
-        return new DNS(url.split(','));
+        return new DNS(discoveryUrl ? discoveryUrl.split(',') : []);
     }
   }
   /* eslint-enable no-use-before-define */
@@ -128,6 +130,7 @@ class DNS extends Discovery {
     Log.warn('Can not register service. Operation is not supported.', {
       name, address, options,
     });
+    return Promise.resolve(true);
   }
 
 }

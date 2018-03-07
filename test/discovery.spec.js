@@ -6,6 +6,7 @@ import Docker from 'dockerode';
 import chaiAsPromised from 'chai-as-promised';
 import request from 'request-promise';
 import { expect, use } from 'chai';
+import { RuntimeContext } from '../src/runtime';
 import { Discovery, Consul, DNS } from '../src/discovery';
 
 use(chaiAsPromised);
@@ -143,15 +144,26 @@ describe('discovery', () => {
   describe('Discovery#find', () => {
 
     it('should return an instance of the specified class', () => {
+      const context = new RuntimeContext(undefined, undefined, [
+        '--discovery-type', 'consul',
+        '--discovery-url', 'http://consul:8500',
+      ]);
       expect(Discovery.find()).to.be.instanceof(DNS);
-      expect(Discovery.find(Consul)).to.be.instanceof(Consul);
+      expect(Discovery.find(context)).to.be.instanceof(Consul);
     });
 
     it('should use the specified options in the instance', () => {
-      expect(Discovery.find(DNS, '4.2.2.4,8.8.8.8').resolver.getServers())
+      let context = new RuntimeContext(undefined, undefined, [
+        '--discovery-url', '4.2.2.4,8.8.8.8',
+      ]);
+      expect(Discovery.find(context).resolver.getServers())
         .to.be.deep.equal(['4.2.2.4', '8.8.8.8']);
-      expect(Discovery.find(Consul, 'http://localhost:8500').endpoint)
-        .to.be.equal('http://localhost:8500');
+      context = new RuntimeContext(undefined, undefined, [
+        '--discovery-type', 'consul',
+        '--discovery-url', 'http://consul:8500',
+      ]);
+      expect(Discovery.find(context).endpoint)
+        .to.be.equal('http://consul:8500');
     });
 
   });

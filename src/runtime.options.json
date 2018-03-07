@@ -43,9 +43,24 @@
     "typeLabel": "[underline]{PORT}",
     "defaultValue": 8080
   }, {
+    "name": "discovery-type",
+    "description": "The discovery service type.",
+    "type": "String",
+    "typeLabel": "[underline]{TYPE}"
+  }, {
     "name": "discovery-url",
     "description": "The service discovery URL.",
     "type": "String",
     "typeLabel": "[underline]{URL}"
+  }, {
+    "name": "config-type",
+    "description": "The configuration service type.",
+    "type": "String",
+    "typeLabel": "[underline]{TYPE}"
+  }, {
+    "name": "config-location",
+    "description": "The location of configuration.",
+    "type": "String",
+    "typeLabel": "[underline]{LOCATION}"
   }
 ]
